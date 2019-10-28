@@ -111,12 +111,16 @@
   (info "parsing took ~A~%" (time-for-humans time!)))
 
 
+
 (with-time
   (for-each-list (xpath *doc* "/collection/record")
-    (with-get-all value!
-      (barcode scsbid sharedp language pubdate biblevel recordtype pubplace
-       oclc lccn isbn issn lccall localcallnum  leader oh08 title author)
-      (ft "~A~%" (delim everything!))))
-  (info (fn "finished conversion in ~A~%~%" (time-for-humans time!))))
+    (let ((barcodes (xpath value! "datafield[@tag='876']/subfield[@code='p']" :all t :text t)))
+      (with-get-all value!
+        (scsbid sharedp language pubdate biblevel recordtype pubplace
+         oclc lccn isbn issn lccall localcallnum  leader oh08 title author)
+        (for-each-list barcodes
+          (ft "~A~C" value! #\Tab)
+          (ft "~A~%" (delim everything!))))))
+    (info (fn "finished conversion in ~A~%~%" (time-for-humans time!))))
 
 
